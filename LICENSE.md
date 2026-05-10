@@ -32,7 +32,7 @@ For commercial use and use by corporations or legal entities.
 
 Copyright (c) 2026 T. Hino. All rights reserved.
 
-This license governs the commercial use of VC6_MFC-to-CSharp
+This license governs the commercial use of ProgramLanguageLogicConvertor
 (hereinafter "the Software"), developed by T. Hino (hereinafter "the Author").
 
 1. Grant of License
@@ -110,8 +110,8 @@ This license governs the commercial use of VC6_MFC-to-CSharp
    in the following format:
 
    [Citation Format]
-   T. Hino, "VC6_MFC-to-CSharp", GitHub,
-   https://github.com/takahino/VC6_MFC-to-CSharp, [Date Accessed]
+   T. Hino, "ProgramLanguageLogicConvertor", GitHub,
+   https://github.com/takahino/ProgramLanguageLogicConvertor, [Date Accessed]
 
    Academic use without proper citation shall constitute a violation
    of this license.
@@ -120,8 +120,8 @@ This license governs the commercial use of VC6_MFC-to-CSharp
 
 ---
 Contact  : takahino@ymail.ne.jp
-Inquiries: https://github.com/takahino/VC6_MFC-to-CSharp/issues
-Repository: https://github.com/takahino/VC6_MFC-to-CSharp
+Inquiries: https://github.com/takahino/ProgramLanguageLogicConvertor/issues
+Repository: https://github.com/takahino/ProgramLanguageLogicConvertor
 
 ---
 
