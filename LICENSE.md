@@ -119,9 +119,9 @@ This license governs the commercial use of ProgramLanguageLogicConvertor
    via email or a repository Issue.
 
 ---
-Contact  : takahino@ymail.ne.jp
-Inquiries: https://github.com/takahino/ProgramLanguageLogicConvertor/issues
-Repository: https://github.com/takahino/ProgramLanguageLogicConvertor
+Contact  : takahino@ymail.ne.jp  
+Inquiries: https://github.com/takahino/ProgramLanguageLogicConvertor/issues  
+Repository: https://github.com/takahino/ProgramLanguageLogicConvertor  
 
 ---
 
