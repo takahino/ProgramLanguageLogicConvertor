@@ -170,4 +170,8 @@ mvn test
 
 ## ライセンス
 
-[BSD 3-Clause License](LICENSE)
+本ソフトウェアは T. Hino Commercial License (THCL) v1.0 のみに基づいて
+ライセンスされます。利用前に著者への利用申請および承認が必要です。
+
+詳細は [LICENSE](LICENSE) を参照してください。日本語版は
+[LICENCE.ja](LICENCE.ja) を参照してください。
