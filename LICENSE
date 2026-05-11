@@ -1,47 +1,25 @@
 # LICENSE
 
-This software is dual-licensed. Choose the license that applies to your use case.
+This software is licensed only under the T. Hino Commercial License
+(THCL) v1.0. Use, copying, modification, distribution, academic use,
+commercial use, and use by corporations or legal entities require
+compliance with the terms below.
 
 ---
 
-## Option 1: GNU General Public License v3.0 (GPLv3)
-
-For individuals and non-commercial use only.
-Commercial use by corporations or legal entities requires a separate
-commercial license (THCL). See Option 2 below.
-
-Copyright (c) 2026 T. Hino
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-Full license text: https://www.gnu.org/licenses/gpl-3.0.html
-
----
-
-## Option 2: T. Hino Commercial License (THCL) v1.0
-
-For commercial use and use by corporations or legal entities.
+## T. Hino Commercial License (THCL) v1.0
 
 Copyright (c) 2026 T. Hino. All rights reserved.
 
-This license governs the commercial use of ProgramLanguageLogicConvertor
+This license governs the use of ProgramLanguageLogicConvertor
 (hereinafter "the Software"), developed by T. Hino (hereinafter "the Author").
 
 1. Grant of License
-   Any person or entity wishing to use the Software for commercial purposes,
-   or any corporation or legal entity wishing to use the Software, must
-   submit a usage application to the Author and obtain written or electronic
-   approval before a license is granted.
-   Any commercial or corporate use without such approval shall be deemed
-   copyright infringement.
+   Any person or entity wishing to use, copy, modify, distribute, or
+   otherwise handle the Software must submit a usage application to the
+   Author and obtain written or electronic approval before a license is
+   granted.
+   Any use without such approval shall be deemed copyright infringement.
 
    Electronic records include:
    - Email
@@ -67,11 +45,11 @@ This license governs the commercial use of ProgramLanguageLogicConvertor
    generated using the Software during the valid license period may
    continue to be used after license expiration.
 
-5. Restriction on Modification
-   Any modification of the Software for commercial purposes requires
-   separate written or electronic approval from the Author.
-   Commercial use of modified versions without such approval shall
-   constitute a violation of this license.
+5. Restriction on Modification and Redistribution
+   Any modification or redistribution of the Software requires separate
+   written or electronic approval from the Author.
+   Use, distribution, or publication of modified versions without such
+   approval shall constitute a violation of this license.
 
 6. Retention of Copyright Notice
    The following copyright notice must be retained in all copies and
@@ -119,20 +97,15 @@ This license governs the commercial use of ProgramLanguageLogicConvertor
    via email or a repository Issue.
 
 ---
-Contact  : takahino@ymail.ne.jp  
-Inquiries: https://github.com/takahino/ProgramLanguageLogicConvertor/issues  
-Repository: https://github.com/takahino/ProgramLanguageLogicConvertor  
+
+Contact  : takahino@ymail.ne.jp
+Inquiries: https://github.com/takahino/ProgramLanguageLogicConvertor/issues
+Repository: https://github.com/takahino/ProgramLanguageLogicConvertor
 
 ---
 
-## Which license applies to you?
+## Applicable License
 
-| Use Case | Applicable License |
-|----------|--------------------|
-| Personal use, study, research (non-commercial) | GPLv3 |
-| Incorporation into OSS projects | GPLv3 |
-| Use by corporations or legal entities | THCL (application required) |
-| Internal business or commercial product use | THCL (application required) |
-| Commercial use with modification | THCL (application + approval required) |
-| Academic publications (no citation obligation) | GPLv3 |
-| Academic publications (with citation obligation) | THCL (application required) |
+All use cases are governed by THCL v1.0. A usage application and approval
+from the Author are required before use unless the Author has separately
+granted permission in writing or electronic record.
