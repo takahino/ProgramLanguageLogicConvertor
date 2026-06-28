@@ -117,6 +117,7 @@ package io.github.takahino.cpp2csharp.matcher;
 import io.github.takahino.cpp2csharp.rule.ConversionRule;
 import io.github.takahino.cpp2csharp.matcher.CppParserFactory;
 import io.github.takahino.cpp2csharp.rule.ConversionRuleLoader;
+import io.github.takahino.cpp2csharp.rule.ConversionToken;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -317,5 +318,57 @@ class PatternMatcherTest {
 		assertThat(results).hasSize(1);
 		assertThat(results.get(0).getCapturedText(0)).isEqualTo("a + b");
 		assertThat(results.get(0).getCapturedText(1)).isEqualTo("c * d");
+	}
+
+	@Test
+	@DisplayName("ABSTRACT_TOKEN は現在位置の1トークンだけをキャプチャする")
+	void testAbstractTokenCapturesSingleToken() {
+		ConversionRule r = rule("int ABSTRACT_TOKEN00 [ ABSTRACT_PARAM01 ]",
+				"int [ ] ABSTRACT_TOKEN00 = new int [ ABSTRACT_PARAM01 ]");
+		// int arr [ 10 ] — ABSTRACT_TOKEN00 は arr（1トークン）
+		List<String> tokens = List.of("int", "arr", "[", "10", "]");
+
+		List<MatchResult> results = matcher.matchRule(r, tokens);
+		assertThat(results).as("単一識別子の変数名にマッチすること").hasSize(1);
+		assertThat(results.get(0).getCapturedTokens(ConversionToken.ABSTRACT_TOKEN_CAPTURE_BASE + 0))
+				.isEqualTo(List.of("arr"));
+		assertThat(results.get(0).getCapturedText(1)).isEqualTo("10");
+		assertThat(results.get(0).getExpandedToTemplate()).isEqualTo("int [ ] arr = new int [ 10 ]");
+	}
+
+	@Test
+	@DisplayName("ABSTRACT_TOKEN は複数トークンをキャプチャせず貪欲にならない")
+	void testAbstractTokenDoesNotCaptureMultipleTokens() {
+		ConversionRule r = rule("int ABSTRACT_TOKEN00 [ ABSTRACT_PARAM01 ]",
+				"int [ ] ABSTRACT_TOKEN00 = new int [ ABSTRACT_PARAM01 ]");
+		// int a b [ 10 ] — ABSTRACT_TOKEN00 は a だけ取り、直後が [ でないためマッチしない
+		List<String> tokens = List.of("int", "a", "b", "[", "10", "]");
+
+		List<MatchResult> results = matcher.matchRule(r, tokens);
+		assertThat(results).as("ABSTRACT_TOKEN は1トークン固定なので2トークン後の [ には続かないこと").isEmpty();
+	}
+
+	@Test
+	@DisplayName("ABSTRACT_TOKEN のグループ参照が同一トークンで一致する")
+	void testAbstractTokenGroupReference() {
+		ConversionRule r = rule("ABSTRACT_TOKEN00 = ABSTRACT_TOKEN00", "ABSTRACT_TOKEN00 = ABSTRACT_TOKEN00");
+		// x = x — 両方の ABSTRACT_TOKEN00 が同じ x にマッチ
+		List<String> tokens = List.of("x", "=", "x");
+
+		List<MatchResult> results = matcher.matchRule(r, tokens);
+		assertThat(results).as("同じ ABSTRACT_TOKEN00 には同一トークンのみマッチすること").hasSize(1);
+		assertThat(results.get(0).getCapturedTokens(ConversionToken.ABSTRACT_TOKEN_CAPTURE_BASE + 0))
+				.isEqualTo(List.of("x"));
+	}
+
+	@Test
+	@DisplayName("ABSTRACT_TOKEN のグループ参照で異なるトークンならマッチしない")
+	void testAbstractTokenGroupReferenceMismatch() {
+		ConversionRule r = rule("ABSTRACT_TOKEN00 = ABSTRACT_TOKEN00", "ABSTRACT_TOKEN00 = ABSTRACT_TOKEN00");
+		// x = y — 2つ目の ABSTRACT_TOKEN00 は x でないのでマッチしない
+		List<String> tokens = List.of("x", "=", "y");
+
+		List<MatchResult> results = matcher.matchRule(r, tokens);
+		assertThat(results).as("異なるトークンはグループ参照不一致でマッチしないこと").isEmpty();
 	}
 }

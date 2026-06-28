@@ -160,6 +160,37 @@ class ConversionTokenTest {
 	}
 
 	@Test
+	@DisplayName("ABSTRACT_TOKEN05 を単一トークン抽象化として生成できる")
+	void testAbstractToken05() {
+		ConversionToken token = ConversionToken.of("ABSTRACT_TOKEN05");
+		assertThat(token.getValue()).isEqualTo("ABSTRACT_TOKEN05");
+		assertThat(token.isAbstractTokenParam()).isTrue();
+		assertThat(token.isAbstractParam()).isFalse();
+		assertThat(token.getParamIndex()).isEqualTo(5);
+		assertThat(token.getCaptureKey()).isEqualTo(ConversionToken.ABSTRACT_TOKEN_CAPTURE_BASE + 5);
+	}
+
+	@Test
+	@DisplayName("ABSTRACT_TOKEN99 を単一トークン抽象化として生成できる")
+	void testAbstractToken99() {
+		ConversionToken token = ConversionToken.of("ABSTRACT_TOKEN99");
+		assertThat(token.isAbstractTokenParam()).isTrue();
+		assertThat(token.getParamIndex()).isEqualTo(99);
+		assertThat(token.getCaptureKey()).isEqualTo(ConversionToken.ABSTRACT_TOKEN_CAPTURE_BASE + 99);
+	}
+
+	@Test
+	@DisplayName("ABSTRACT_TOKEN と ABSTRACT_PARAM は別変数として区別される")
+	void testAbstractTokenDistinctFromParam() {
+		ConversionToken token = ConversionToken.of("ABSTRACT_TOKEN00");
+		ConversionToken param = ConversionToken.of("ABSTRACT_PARAM00");
+		assertThat(token).isNotEqualTo(param);
+		assertThat(token.getCaptureKey()).isNotEqualTo(param.getCaptureKey());
+		assertThat(token.isAbstractTokenParam()).isTrue();
+		assertThat(param.isAbstractParam()).isTrue();
+	}
+
+	@Test
 	@DisplayName("特殊文字トークンを正しく生成できる")
 	void testSpecialCharTokens() {
 		assertThat(ConversionToken.of(".").getValue()).isEqualTo(".");
@@ -191,6 +222,7 @@ class ConversionTokenTest {
 	@DisplayName("toString が適切な文字列を返す")
 	void testToString() {
 		assertThat(ConversionToken.of("ABSTRACT_PARAM05").toString()).contains("ABSTRACT_PARAM[05]");
+		assertThat(ConversionToken.of("ABSTRACT_TOKEN07").toString()).contains("ABSTRACT_TOKEN[07]");
 		assertThat(ConversionToken.of("AfxMessageBox").toString()).contains("AfxMessageBox");
 	}
 }

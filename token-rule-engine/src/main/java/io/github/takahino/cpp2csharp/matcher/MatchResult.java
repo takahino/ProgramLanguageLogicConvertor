@@ -135,6 +135,8 @@ public final class MatchResult {
 
 	private static final Pattern ABSTRACT_PARAM_PATTERN = Pattern.compile("ABSTRACT_PARAM(\\d{2})");
 
+	private static final Pattern ABSTRACT_TOKEN_PATTERN = Pattern.compile("ABSTRACT_TOKEN(\\d{2})");
+
 	private static final Pattern RECEIVER_PATTERN = Pattern.compile("\\b" + ConversionToken.RECEIVER_TOKEN + "\\b");
 
 	/** マッチしたルール */
@@ -261,6 +263,9 @@ public final class MatchResult {
 			return "";
 		String result = ABSTRACT_PARAM_PATTERN.matcher(template).replaceAll(mr -> Matcher
 				.quoteReplacement(String.join(" ", captures.getOrDefault(Integer.parseInt(mr.group(1)), List.of()))));
+		result = ABSTRACT_TOKEN_PATTERN.matcher(result).replaceAll(
+				mr -> Matcher.quoteReplacement(String.join(" ", captures.getOrDefault(
+						ConversionToken.ABSTRACT_TOKEN_CAPTURE_BASE + Integer.parseInt(mr.group(1)), List.of()))));
 		List<String> receiverCapture = captures.getOrDefault(ConversionToken.RECEIVER_CAPTURE_KEY, List.of());
 		result = RECEIVER_PATTERN.matcher(result)
 				.replaceAll(Matcher.quoteReplacement(String.join(" ", receiverCapture)));

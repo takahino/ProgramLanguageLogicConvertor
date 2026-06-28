@@ -213,7 +213,7 @@ public class RightmostFirstSelectionStrategy implements MatchSelectionStrategy {
 	}
 
 	/**
-	 * from パターンの先頭トークンが ABSTRACT_PARAM の場合、そのキャプチャ内容が
+	 * from パターンの先頭トークンが ABSTRACT_PARAM・ABSTRACT_TOKEN の場合、そのキャプチャ内容が
 	 * 単純な識別子・リテラル等であることを確認し、不適切なマッチを除外する。
 	 *
 	 * <p>
@@ -228,14 +228,23 @@ public class RightmostFirstSelectionStrategy implements MatchSelectionStrategy {
 	 * </ul>
 	 *
 	 * <p>
+	 * ABSTRACT_TOKEN は1トークンキャプチャのため (b)(c) には該当しないが、(a) の括弧記号単体のキャプチャは
+	 * 拒否する。キャプチャ取得は {@code getCaptureKey()} 経由で行い、ABSTRACT_PARAM (0-99) と
+	 * ABSTRACT_TOKEN (200-299) のキー空間を正しく扱う。
+	 * </p>
+	 *
+	 * <p>
 	 * LR寄せ計画: 事後フィルタ頼みを減らし、将来的には候補生成側で誤候補を減らす方針。
 	 * </p>
 	 */
 	private boolean passesLeadingAbstractParamFilter(MatchResult match) {
 		var fromTokens = match.getRule().getFromTokens();
-		if (fromTokens.isEmpty() || !fromTokens.get(0).isAbstractParam())
+		if (fromTokens.isEmpty())
 			return true;
-		var captured = match.getCapturedTokens(fromTokens.get(0).getParamIndex());
+		var first = fromTokens.get(0);
+		if (!first.isAbstractParam() && !first.isAbstractTokenParam())
+			return true;
+		var captured = match.getCapturedTokens(first.getCaptureKey());
 		return !captured.isEmpty() && !startsWithBracket(captured) && !hasDotWithParenAtDepthZero(captured)
 				&& !isFunctionCallForm(captured);
 	}

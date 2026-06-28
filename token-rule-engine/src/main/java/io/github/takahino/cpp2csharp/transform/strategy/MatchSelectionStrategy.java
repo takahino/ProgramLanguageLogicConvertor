@@ -140,13 +140,15 @@ public interface MatchSelectionStrategy {
 	SelectionDecision selectBest(MatchSelectionInput input);
 
 	/**
-	 * ルールの具体トークン数を返す（選択時の特異性判定に使用）。 デフォルトは ABSTRACT_PARAM でないトークン数。
+	 * ルールの具体トークン数を返す（選択時の特異性判定に使用）。 デフォルトは ABSTRACT_PARAM・ABSTRACT_TOKEN でないトークン数。
 	 *
 	 * @param rule
 	 *            変換ルール
 	 * @return 具体トークン数
 	 */
 	default int countConcreteTokens(ConversionRule rule) {
-		return (int) rule.getFromTokens().stream().filter(t -> !t.isAbstractParam()).count();
+		return (int) rule.getFromTokens().stream()
+				.filter(t -> !t.isAbstractParam() && !t.isAbstractTokenParam())
+				.count();
 	}
 }

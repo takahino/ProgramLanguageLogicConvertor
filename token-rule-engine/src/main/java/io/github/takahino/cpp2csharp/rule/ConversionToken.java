@@ -144,6 +144,9 @@ public final class ConversionToken {
 	/** ABSTRACT_PARAM の正規表現パターン (ABSTRACT_PARAM00 ～ ABSTRACT_PARAM99) */
 	private static final Pattern ABSTRACT_PARAM_PATTERN = Pattern.compile("ABSTRACT_PARAM(\\d{2})");
 
+	/** ABSTRACT_TOKEN の正規表現パターン (ABSTRACT_TOKEN00 ～ ABSTRACT_TOKEN99) */
+	private static final Pattern ABSTRACT_TOKEN_PATTERN = Pattern.compile("ABSTRACT_TOKEN(\\d{2})");
+
 	/** REGEX トークンのパターン: /pattern/ 形式 */
 	private static final Pattern REGEX_TOKEN_PATTERN = Pattern.compile("^/(.+)/$");
 
@@ -158,11 +161,21 @@ public final class ConversionToken {
 	 */
 	public static final int RECEIVER_CAPTURE_KEY = 100;
 
+	/**
+	 * ABSTRACT_TOKEN キャプチャの captures マップ基底キー (値 = 200)。 ABSTRACT_TOKEN[nn] は
+	 * {@code ABSTRACT_TOKEN_CAPTURE_BASE + paramIndex} (200-299) をキーとする。 ABSTRACT_PARAM (0-99)・
+	 * RECEIVER (100) と衝突しない。
+	 */
+	public static final int ABSTRACT_TOKEN_CAPTURE_BASE = 200;
+
 	/** トークンの文字列値 */
 	private final String value;
 
 	/** このトークンが ABSTRACT_PARAM 抽象化トークンであるか */
 	private final boolean abstractParam;
+
+	/** このトークンが ABSTRACT_TOKEN 抽象化トークンであるか */
+	private final boolean abstractTokenParam;
 
 	/** このトークンが RECEIVER 抽象化トークンであるか */
 	private final boolean receiverParam;
@@ -185,10 +198,11 @@ public final class ConversionToken {
 	/**
 	 * プライベートコンストラクタ。{@link #of(String)} ファクトリメソッドを使用すること。
 	 */
-	private ConversionToken(String value, boolean abstractParam, boolean receiverParam, boolean regexParam,
-			boolean lexerTypeParam, int paramIndex, String regexPattern, String lexerTypeName) {
+	private ConversionToken(String value, boolean abstractParam, boolean abstractTokenParam, boolean receiverParam,
+			boolean regexParam, boolean lexerTypeParam, int paramIndex, String regexPattern, String lexerTypeName) {
 		this.value = value;
 		this.abstractParam = abstractParam;
+		this.abstractTokenParam = abstractTokenParam;
 		this.receiverParam = receiverParam;
 		this.regexParam = regexParam;
 		this.lexerTypeParam = lexerTypeParam;
@@ -198,9 +212,9 @@ public final class ConversionToken {
 	}
 
 	/**
-	 * 文字列からトークンを生成するファクトリメソッド。 ABSTRACT_PARAM[nn] 形式は抽象化トークン、"RECEIVER"
-	 * はレシーバートークンとして生成する。 /pattern/ 形式は REGEX トークン、{@literal <TypeName>} 形式は
-	 * LEXER_TYPE トークンとして生成する。
+	 * 文字列からトークンを生成するファクトリメソッド。 ABSTRACT_PARAM[nn] 形式は抽象化トークン、ABSTRACT_TOKEN[nn] 形式は
+	 * 単一トークン抽象化、"RECEIVER" はレシーバートークンとして生成する。 /pattern/ 形式は REGEX トークン、
+	 * {@literal <TypeName>} 形式は LEXER_TYPE トークンとして生成する。
 	 *
 	 * @param value
 	 *            トークン文字列
@@ -215,20 +229,25 @@ public final class ConversionToken {
 		Matcher m = ABSTRACT_PARAM_PATTERN.matcher(value);
 		if (m.matches()) {
 			int idx = Integer.parseInt(m.group(1));
-			return new ConversionToken(value, true, false, false, false, idx, null, null);
+			return new ConversionToken(value, true, false, false, false, false, idx, null, null);
+		}
+		Matcher tokenMatcher = ABSTRACT_TOKEN_PATTERN.matcher(value);
+		if (tokenMatcher.matches()) {
+			int idx = Integer.parseInt(tokenMatcher.group(1));
+			return new ConversionToken(value, false, true, false, false, false, idx, null, null);
 		}
 		Matcher regexMatcher = REGEX_TOKEN_PATTERN.matcher(value);
 		if (regexMatcher.matches()) {
-			return new ConversionToken(value, false, false, true, false, -1, regexMatcher.group(1), null);
+			return new ConversionToken(value, false, false, false, true, false, -1, regexMatcher.group(1), null);
 		}
 		Matcher lexerTypeMatcher = LEXER_TYPE_TOKEN_PATTERN.matcher(value);
 		if (lexerTypeMatcher.matches()) {
-			return new ConversionToken(value, false, false, false, true, -1, null, lexerTypeMatcher.group(1));
+			return new ConversionToken(value, false, false, false, false, true, -1, null, lexerTypeMatcher.group(1));
 		}
 		if (RECEIVER_TOKEN.equals(value)) {
-			return new ConversionToken(value, false, true, false, false, 0, null, null);
+			return new ConversionToken(value, false, false, true, false, false, 0, null, null);
 		}
-		return new ConversionToken(value, false, false, false, false, -1, null, null);
+		return new ConversionToken(value, false, false, false, false, false, -1, null, null);
 	}
 
 	/**
@@ -247,6 +266,15 @@ public final class ConversionToken {
 	 */
 	public boolean isAbstractParam() {
 		return abstractParam;
+	}
+
+	/**
+	 * このトークンが ABSTRACT_TOKEN（単一トークン抽象化）かどうかを返す。
+	 *
+	 * @return ABSTRACT_TOKEN トークンであれば true
+	 */
+	public boolean isAbstractTokenParam() {
+		return abstractTokenParam;
 	}
 
 	/**
@@ -304,14 +332,17 @@ public final class ConversionToken {
 	}
 
 	/**
-	 * captures マップに使用するキーを返す。 ABSTRACT_PARAM: paramIndex (0-99) RECEIVER:
-	 * RECEIVER_CAPTURE_KEY (100、固定) 通常トークン: -1
+	 * captures マップに使用するキーを返す。 ABSTRACT_PARAM: paramIndex (0-99) ABSTRACT_TOKEN:
+	 * ABSTRACT_TOKEN_CAPTURE_BASE + paramIndex (200-299) RECEIVER: RECEIVER_CAPTURE_KEY
+	 * (100、固定) 通常トークン: -1
 	 *
 	 * @return captures マップキー
 	 */
 	public int getCaptureKey() {
 		if (abstractParam)
 			return paramIndex;
+		if (abstractTokenParam)
+			return ABSTRACT_TOKEN_CAPTURE_BASE + paramIndex;
 		if (receiverParam)
 			return RECEIVER_CAPTURE_KEY;
 		return -1;
@@ -323,22 +354,25 @@ public final class ConversionToken {
 			return true;
 		if (!(o instanceof ConversionToken that))
 			return false;
-		return abstractParam == that.abstractParam && receiverParam == that.receiverParam
-				&& regexParam == that.regexParam && lexerTypeParam == that.lexerTypeParam
-				&& paramIndex == that.paramIndex && Objects.equals(value, that.value)
-				&& Objects.equals(regexPattern, that.regexPattern) && Objects.equals(lexerTypeName, that.lexerTypeName);
+		return abstractParam == that.abstractParam && abstractTokenParam == that.abstractTokenParam
+				&& receiverParam == that.receiverParam && regexParam == that.regexParam
+				&& lexerTypeParam == that.lexerTypeParam && paramIndex == that.paramIndex
+				&& Objects.equals(value, that.value) && Objects.equals(regexPattern, that.regexPattern)
+				&& Objects.equals(lexerTypeName, that.lexerTypeName);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(value, abstractParam, receiverParam, regexParam, lexerTypeParam, paramIndex, regexPattern,
-				lexerTypeName);
+		return Objects.hash(value, abstractParam, abstractTokenParam, receiverParam, regexParam, lexerTypeParam,
+				paramIndex, regexPattern, lexerTypeName);
 	}
 
 	@Override
 	public String toString() {
 		if (abstractParam)
 			return String.format("ABSTRACT_PARAM[%02d]", paramIndex);
+		if (abstractTokenParam)
+			return String.format("ABSTRACT_TOKEN[%02d]", paramIndex);
 		if (receiverParam)
 			return RECEIVER_TOKEN;
 		if (regexParam)

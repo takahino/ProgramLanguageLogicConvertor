@@ -314,8 +314,8 @@ public class PatternDiscoveryEngine {
 		Map<String, List<ConversionRule>> index = new HashMap<>();
 		ruleSet.mainPhaseSpecs().stream().flatMap(s -> s.rules().stream()).forEach(rule -> {
 			rule.getFromTokens().stream()
-					.filter(t -> !t.isAbstractParam() && !t.isReceiverParam() && !t.isRegexParam()
-							&& !t.isLexerTypeParam())
+				.filter(t -> !t.isAbstractParam() && !t.isAbstractTokenParam() && !t.isReceiverParam()
+						&& !t.isRegexParam() && !t.isLexerTypeParam())
 					.map(io.github.takahino.cpp2csharp.rule.ConversionToken::getValue)
 					.filter(v -> v != null && v.matches("[A-Za-z_][A-Za-z0-9_]*"))
 					.forEach(id -> index.computeIfAbsent(id, k -> new ArrayList<>()).add(rule));

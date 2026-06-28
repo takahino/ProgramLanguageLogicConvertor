@@ -6,7 +6,7 @@ ANTLR4 による C++ パースと、変換定義ファイル (`.rule`) を用い
 ## 特徴
 
 - **シンプルな変換ルール DSL**: `from:` / `to:` の宣言的な記述だけでパターンを追加できる
-- **抽象化トークン**: `ABSTRACT_PARAM00`〜`ABSTRACT_PARAM99` / `RECEIVER` で任意のトークン列・レシーバー連鎖をキャプチャ
+- **抽象化トークン**: `ABSTRACT_PARAM00`〜`ABSTRACT_PARAM99` / `ABSTRACT_TOKEN00`〜`ABSTRACT_TOKEN99` / `RECEIVER` で任意のトークン列・単一トークン・レシーバー連鎖をキャプチャ
 - **多段パイプライン**: PRE → DYNAMIC → MAIN → POST → COMBY の 5 フェーズ構成
 - **インライン単体テスト**: ルールファイルに `test:` / `assrt:` を書くとビルド時に自動検証される
 - **変換過程の可視化**: フェーズ遷移 diff HTML (`phases.html`)、変換サマリーレポート、Excel 出力
@@ -110,6 +110,7 @@ assrt: void f ( ) { MessageBox.Show("エラー", "", MessageBoxButtons.OK, Messa
 ```
 
 - `ABSTRACT_PARAM00`〜`ABSTRACT_PARAM99`: 括弧深度を考慮して任意のトークン列にマッチ
+- `ABSTRACT_TOKEN00`〜`ABSTRACT_TOKEN99`: 現在位置の1トークンだけをキャプチャ（変数名・型名等の単一トークン束縛に使用）
 - `RECEIVER`: `obj.method().field` のような postfix チェーン全体にマッチ
 - `test:` / `assrt:` は省略可能。記述するとビルド時に `RuleValidationTest` で自動検証
 

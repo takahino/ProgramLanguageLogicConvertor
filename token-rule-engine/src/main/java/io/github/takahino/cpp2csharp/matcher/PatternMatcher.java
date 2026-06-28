@@ -255,10 +255,10 @@ public class PatternMatcher {
 			for (ConversionRule rule : rl) {
 				if (rule.getFromTokens().isEmpty())
 					continue;
-				ConversionToken first = rule.getFromTokens().get(0);
-				if (first.isAbstractParam() || first.isReceiverParam()) {
-					abstractHead.add(rule);
-				} else {
+			ConversionToken first = rule.getFromTokens().get(0);
+			if (first.isAbstractParam() || first.isAbstractTokenParam() || first.isReceiverParam()) {
+				abstractHead.add(rule);
+			} else {
 					concreteHead.computeIfAbsent(first.getValue(), k -> new ArrayList<>()).add(rule);
 				}
 			}
@@ -369,6 +369,9 @@ public class PatternMatcher {
 		if (patToken.isAbstractParam()) {
 			// ABSTRACT_PARAM[nn]: 括弧深さを考慮したアンカー探索
 			return matchAbstractParam(pattern, patIdx, patToken.getCaptureKey(), tokens, tokIdx, captures);
+		} else if (patToken.isAbstractTokenParam()) {
+			// ABSTRACT_TOKEN[nn]: 現在位置の1トークンだけをキャプチャ
+			return matchAbstractToken(pattern, patIdx, patToken.getCaptureKey(), tokens, tokIdx, captures);
 		} else if (patToken.isReceiverParam()) {
 			// RECEIVER[nn]: postfix チェーンに限定したアンカー探索
 			return matchReceiverParam(pattern, patIdx, patToken.getCaptureKey(), tokens, tokIdx, captures);
@@ -428,6 +431,53 @@ public class PatternMatcher {
 		}
 		return searchByAnchor(pattern, patIdx, captureKey, tokens, tokIdx, captures,
 				pattern.get(nextConcretePatIdx).getValue(), PatternMatcher::hasNoTopLevelComma);
+	}
+
+	/**
+	 * ABSTRACT_TOKEN[nn] のマッチング処理（単一トークンキャプチャ）。
+	 *
+	 * <p>
+	 * ABSTRACT_PARAM が括弧深度を考慮した任意長トークン列をキャプチャするのに対し、 ABSTRACT_TOKEN は
+	 * 現在位置の <strong>1トークンだけ</strong> を確実に束縛する。これにより 変数名・型名等の「1トークンだけを取りたい」箇所で
+	 * 貪欲キャプチャによる誤マッチを防ぐ。
+	 * </p>
+	 *
+	 * <p>
+	 * 同じキャプチャキーが複数回登場した場合、 1回目のキャプチャ内容（1トークン）と一致する場合のみ成功とする（グループ参照）。
+	 * </p>
+	 *
+	 * @param pattern
+	 *            fromパターン
+	 * @param patIdx
+	 *            現在の ABSTRACT_TOKEN のパターンインデックス
+	 * @param captureKey
+	 *            captures マップのキー
+	 * @param tokens
+	 *            フラットトークンリスト
+	 * @param tokIdx
+	 *            現在のトークンインデックス
+	 * @param captures
+	 *            キャプチャ記録
+	 * @return マッチ成功時はマッチ終了インデックス (exclusive)、失敗時は -1
+	 */
+	private int matchAbstractToken(List<ConversionToken> pattern, int patIdx, int captureKey, List<String> tokens,
+			int tokIdx, Map<Integer, List<String>> captures) {
+		OptionalInt groupRef = tryGroupReference(pattern, patIdx, captureKey, tokens, tokIdx, captures);
+		if (groupRef.isPresent())
+			return groupRef.getAsInt();
+
+		if (tokIdx >= tokens.size()) {
+			return -1;
+		}
+		List<String> candidate = new ArrayList<>(tokens.subList(tokIdx, tokIdx + 1));
+		Map<Integer, List<String>> trialCaptures = new HashMap<>(captures);
+		trialCaptures.put(captureKey, candidate);
+		int result = matchRecursive(pattern, patIdx + 1, tokens, tokIdx + 1, trialCaptures);
+		if (result >= 0) {
+			captures.putAll(trialCaptures);
+			return result;
+		}
+		return -1;
 	}
 
 	/**
@@ -576,7 +626,7 @@ public class PatternMatcher {
 
 		ConversionToken pat = pattern.get(patIdx);
 
-		if (!pat.isAbstractParam() && !pat.isReceiverParam()) {
+		if (!pat.isAbstractParam() && !pat.isAbstractTokenParam() && !pat.isReceiverParam()) {
 			// 具体トークン: 完全一致チェック
 			if (tokens.get(tokIdx).equals(pat.getValue())) {
 				return matchDepthSimple(pattern, patIdx + 1, tokens, tokIdx + 1);
@@ -610,7 +660,8 @@ public class PatternMatcher {
 	 */
 	private static int findNextConcretePatIdx(List<ConversionToken> pattern, int fromPatIdx) {
 		int idx = fromPatIdx;
-		while (idx < pattern.size() && (pattern.get(idx).isAbstractParam() || pattern.get(idx).isReceiverParam())) {
+		while (idx < pattern.size() && (pattern.get(idx).isAbstractParam() || pattern.get(idx).isAbstractTokenParam()
+				|| pattern.get(idx).isReceiverParam())) {
 			idx++;
 		}
 		return idx;

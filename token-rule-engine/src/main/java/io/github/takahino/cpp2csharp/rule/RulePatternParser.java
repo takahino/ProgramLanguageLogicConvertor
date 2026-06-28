@@ -179,14 +179,14 @@ public final class RulePatternParser {
 				commaCount++;
 				hasContent = true;
 			} else if (depth == 1) {
-				// any non-comma, non-bracket token inside the parens
-				// ignore abstract params like ABSTRACT_PARAM00, RECEIVER
-				String v = token;
-				if (!v.startsWith("ABSTRACT_PARAM") && !v.startsWith("RECEIVER")) {
-					hasContent = true;
-				} else {
-					hasContent = true; // abstract params also count
-				}
+			// any non-comma, non-bracket token inside the parens
+			// ignore abstract params like ABSTRACT_PARAM00, ABSTRACT_TOKEN00, RECEIVER
+			String v = token;
+			if (!v.startsWith("ABSTRACT_PARAM") && !v.startsWith("ABSTRACT_TOKEN") && !v.startsWith("RECEIVER")) {
+				hasContent = true;
+			} else {
+				hasContent = true; // abstract params also count
+			}
 			}
 		}
 		return -1;
